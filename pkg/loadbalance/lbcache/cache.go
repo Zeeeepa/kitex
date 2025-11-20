@@ -163,7 +163,9 @@ func (b *BalancerFactory) Get(ctx context.Context, target rpcinfo.EndpointInfo) 
 		return val.(*Balancer), nil
 	}
 	val, err, _ := b.sfg.Do(desc, func() (interface{}, error) {
+		klog.CtxErrorf(ctx, "KITEX-DEBUG: start Resolve")
 		res, err := b.resolver.Resolve(ctx, desc)
+		klog.CtxErrorf(ctx, "KITEX-DEBUG: end Resolve")
 		if err != nil {
 			return nil, err
 		}
@@ -173,7 +175,9 @@ func (b *BalancerFactory) Get(ctx context.Context, target rpcinfo.EndpointInfo) 
 			target: desc,
 		}
 		bl.res.Store(res)
+		klog.CtxErrorf(ctx, "KITEX-DEBUG: start getSharedTicker")
 		bl.sharedTicker = getSharedTicker(bl, b.opts.RefreshInterval)
+		klog.CtxErrorf(ctx, "KITEX-DEBUG: end getSharedTicker")
 		b.cache.Store(desc, bl)
 		return bl, nil
 	})

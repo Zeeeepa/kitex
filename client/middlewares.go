@@ -95,6 +95,7 @@ func newResolveMWBuilder(lbf *lbcache.BalancerFactory) endpoint.MiddlewareBuilde
 				if remote.GetInstance() != nil {
 					return next(ctx, request, response)
 				}
+				klog.CtxErrorf(ctx, "KITEX-DEBUG: start get balancer")
 				lb, err := lbf.Get(ctx, dest)
 				if err != nil {
 					return kerrors.ErrServiceDiscovery.WithCause(err)
@@ -108,10 +109,13 @@ func newResolveMWBuilder(lbf *lbcache.BalancerFactory) endpoint.MiddlewareBuilde
 					default:
 					}
 
+					klog.CtxErrorf(ctx, "KITEX-DEBUG: start get picker")
 					// we always need to get a new picker every time, because when downstream update deployment,
 					// we may get an old picker that include all outdated instances which will cause connect always failed.
 					picker := lb.GetPicker()
+					klog.CtxErrorf(ctx, "KITEX-DEBUG: start get instance")
 					ins := picker.Next(ctx, request)
+					klog.CtxErrorf(ctx, "KITEX-DEBUG: end get instance")
 					if ins == nil {
 						err = kerrors.ErrNoMoreInstance.WithCause(fmt.Errorf("last error: %w", lastErr))
 					} else {

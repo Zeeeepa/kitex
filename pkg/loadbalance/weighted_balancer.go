@@ -63,7 +63,9 @@ func (wb *weightedBalancer) GetPicker(e discovery.Result) Picker {
 	picker, ok := wb.pickerCache.Load(e.CacheKey)
 	if !ok {
 		picker, _, _ = wb.sfg.Do(e.CacheKey, func() (interface{}, error) {
+			klog.Error("KITEX-DEBUG: start createPicker")
 			p := wb.createPicker(e)
+			klog.Error("KITEX-DEBUG: end createPicker")
 			wb.pickerCache.Store(e.CacheKey, p)
 			return p, nil
 		})
